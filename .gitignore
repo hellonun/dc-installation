@@ -1,0 +1,5 @@
+# visitor messages stay on the station computer, never in git
+data/
+__pycache__/
+*.pyc
+.DS_Store

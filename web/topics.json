@@ -1,0 +1,30 @@
+[
+  {
+    "id": "rights",
+    "th": "สิทธิและความเป็นธรรม",
+    "en": "Rights and Equality",
+    "q_th": "คุณอยากให้รัฐรับประกันสิทธิขั้นพื้นฐานอะไรบ้าง",
+    "q_en": "What fundamental rights should the state guarantee?"
+  },
+  {
+    "id": "life",
+    "th": "ปากท้องและคุณภาพชีวิต",
+    "en": "Quality of Life",
+    "q_th": "รัฐควรดูแลเรื่องการศึกษา สุขภาพ สวัสดิการ และบริการสาธารณะอย่างไร",
+    "q_en": "How should the state provide education, healthcare, welfare, and public services?"
+  },
+  {
+    "id": "politics",
+    "th": "อำนาจรัฐและการเมือง",
+    "en": "Politics and Governance",
+    "q_th": "สถาบันต่างๆ ควรมีอำนาจแค่ไหน และควรถูกตรวจสอบอย่างไร",
+    "q_en": "How much power should different institutions have, and how should they be held accountable?"
+  },
+  {
+    "id": "process",
+    "th": "การจัดทำและแก้ไขรัฐธรรมนูญ",
+    "en": "Constitutional Process",
+    "q_th": "คนร่างรัฐธรรมนูญควรมาจากไหน ประชาชนจะมีส่วนร่วมได้อย่างไร",
+    "q_en": "Who should draft the constitution, and how can the public participate in the process?"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "port": "auto",
+  "baud": 460800,
+  "osc_host": "127.0.0.1",
+  "osc_port": 7000,
+  "screen_w_mm": 697.3,
+  "screen_h_mm": 392.2,
+  "sensor_x_mm": 356.7,
+  "sensor_y_mm": -38.3,
+  "angle_offset_deg": 88.56,
+  "mirror": false,
+  "edge_margin_mm": 8.0,
+  "min_dist_mm": 30.0,
+  "cluster_gap_mm": 30.0,
+  "min_points": 2,
+  "finger_max_mm": 45.0,
+  "max_touches": 1,
+  "brick_zone": [
+    0.28,
+    0.28,
+    0.72,
+    0.64
+  ],
+  "brick_min_mm": 50.0,
+  "brick_on_s": 0.6,
+  "brick_off_s": 1.0,
+  "bg_seconds": 2.0,
+  "bg_tolerance_mm": 40.0
+}

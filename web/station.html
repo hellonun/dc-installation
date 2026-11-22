@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Your Dream Constitution · Station</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@font-face{font-family:Plex;font-weight:300;src:url(fonts/ibm-plex-sans-thai-thai-300-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-thai-thai-400-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:600;src:url(fonts/ibm-plex-sans-thai-thai-600-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:700;src:url(fonts/ibm-plex-sans-thai-thai-700-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:300;src:url(fonts/ibm-plex-sans-thai-latin-300-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-thai-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+@font-face{font-family:Plex;font-weight:600;src:url(fonts/ibm-plex-sans-thai-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+@font-face{font-family:Plex;font-weight:700;src:url(fonts/ibm-plex-sans-thai-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+:root{--bg:#1F2125}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+body{cursor:none}
+body.debug{cursor:default}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg);transition:background-color .8s ease;color:#fff;font-family:Plex,sans-serif;overflow:hidden}
+.hdr{position:absolute;left:88px;right:88px;top:64px;display:flex;justify-content:space-between;align-items:center}
+.hdr .th{font-size:30px;font-weight:600;letter-spacing:.02em}
+.hdr .en{font-size:24px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.prog{display:flex;gap:16px}
+.prog span{width:12px;height:12px;border-radius:6px;background:rgba(255,255,255,.45);transition:all .4s}
+.prog span.on{width:44px;background:#fff}
+.title{position:absolute;left:88px;right:88px;top:170px;height:250px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:12px;text-align:center;overflow:hidden}
+.title h1{margin:0;font-weight:700;line-height:1.22;white-space:nowrap}
+.title p{margin:0;font-weight:300;line-height:1.28;white-space:nowrap}
+.title.wrap h1,.title.wrap p{white-space:normal;text-wrap:balance}
+.u{display:inline-block;min-width:300px;margin-left:16px;border-bottom:6px solid #fff;padding:0 6px}
+.ue{display:inline-block;min-width:220px;border-bottom:4px solid #fff;font-weight:600;padding:0 4px}
+.pill{padding:8px 24px;border:3px solid rgba(255,255,255,.85);border-radius:999px;font-size:26px;font-weight:600}
+#spot{position:absolute;box-sizing:border-box;border-radius:12px;transition:box-shadow .8s,border-color .4s}
+#spot .ph{position:absolute;inset:0;margin:auto;background:rgba(255,255,255,.12);border-radius:4px}
+#spot.dash{border:4px dashed rgba(255,255,255,.85)}
+#spot.solid{border:4px solid rgba(255,255,255,.55)}
+#spot.none{border:4px solid transparent}
+#spot.glow{border:4px solid transparent;box-shadow:0 0 68px 12px rgba(255,255,255,.3)}
+.debug #spot{z-index:2}
+#spot .fake{position:absolute;inset:0;margin:auto;background:#A65A5A;border-radius:4px;box-shadow:0 12px 28px rgba(0,0,0,.3)}
+.below{position:absolute;left:88px;right:88px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.below .a{font-size:40px;font-weight:600}
+.below .b{font-size:30px;font-weight:400;opacity:.9}
+.below .s{font-size:32px;font-weight:600;opacity:.95}
+.bottom{position:absolute;left:88px;right:88px;bottom:64px}
+.choose{font-size:28px;font-weight:400;opacity:.9;text-align:center;margin-bottom:20px;transition:opacity .2s}
+.choose.nudge,.line.nudge{animation:nudge .6s ease 2}
+@keyframes nudge{50%{transform:scale(1.06);opacity:1}}
+.btns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.btn{height:128px;box-sizing:border-box;border-radius:24px;border:4px solid rgba(255,255,255,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 16px;overflow:hidden;transition:background .2s,color .2s}
+.btn .t{font-size:34px;font-weight:600;line-height:1.2;white-space:nowrap}
+.btn .e{font-size:22px;font-weight:400;line-height:1.2;white-space:nowrap}
+.btn.on{background:#fff;color:#2B2D31;border-color:#fff}
+.msgbox{position:absolute;left:200px;right:200px;bottom:64px}
+.line{border-bottom:4px solid #fff;padding-bottom:16px;display:flex;align-items:flex-end;gap:32px}
+#msg{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;caret-color:#fff;font:600 76px/1.3 Plex,sans-serif;padding:0}
+.count{font-size:28px;opacity:.85;white-space:nowrap}
+.hints{display:flex;justify-content:space-between;align-items:center;gap:32px;margin-top:24px;font-size:26px;opacity:.95}
+.back{height:100px;box-sizing:border-box;padding:0 40px;border-radius:24px;border:4px solid rgba(255,255,255,.75);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;transition:background .2s,color .2s}
+.back .t{font-size:30px;font-weight:600;line-height:1.2;white-space:nowrap}
+.back .e{font-size:20px;line-height:1.2;white-space:nowrap}
+.back.on{background:#fff;color:#2B2D31}
+.hints .mid{flex:1;text-align:center;line-height:1.45;font-size:22px;opacity:.85}
+.send{height:120px;box-sizing:border-box;padding:0 64px;border-radius:28px;background:#fff;color:#2B2D31;border:4px solid #fff;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 36px rgba(255,255,255,.35);transition:opacity .2s,transform .15s}
+.send .t{font-size:42px;font-weight:700;line-height:1.15;white-space:nowrap}
+.send .e{font-size:24px;font-weight:600;line-height:1.2;white-space:nowrap}
+.send.off{opacity:.4;box-shadow:none}
+.send.on{transform:scale(.95)}
+#fx{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none}
+#dot{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:#FFC531;box-shadow:0 0 18px rgba(255,197,49,.8);display:none;pointer-events:none}
+.scr{display:none}
+[data-s="invite"] .s-invite,[data-s="topic"] .s-topic,[data-s="message"] .s-message,[data-s="embed"] .s-embed,[data-s="thanks"] .s-thanks{display:flex}
+[data-s="topic"] .s-topic.blk,[data-s="message"] .s-message.blk,[data-s="thanks"] .s-thanks.blk{display:block}
+#msgwrap{opacity:0;pointer-events:none}
+[data-s="message"] #msgwrap{opacity:1}
+#dbg{position:absolute;left:12px;bottom:8px;font:20px monospace;color:#9f9;display:none}
+.debug #dbg{display:block}
+#cal{position:absolute;inset:0;display:none}
+.cal #cal{display:block}
+.cal .hdr,.cal .scr,.cal #spot,.cal #msgwrap{visibility:hidden}
+.cross{position:absolute;width:80px;height:80px;margin:-40px 0 0 -40px}
+.cross:before,.cross:after{content:"";position:absolute;background:#FFC531}
+.cross:before{left:38px;top:0;width:4px;height:80px}
+.cross:after{top:38px;left:0;height:4px;width:80px}
+.cross b{position:absolute;left:52px;top:-34px;font-size:36px;color:#FFC531}
+</style>
+</head>
+<body>
+<div id="stage" data-s="invite">
+  <div class="hdr">
+    <div><div class="th">รัฐธรรมนูญในฝันของคุณ</div><div class="en">Your Dream Constitution</div></div>
+    <div class="prog" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="title scr s-invite"><h1 data-size="92">เสียงของคุณ สร้างความเปลี่ยนแปลงได้</h1><p data-size="52">Your voice can create change.</p></div>
+  <div class="title scr s-topic"><h1 data-size="80">คุณอยากเห็นอะไรใน<span class="u" id="t-th">&nbsp;</span></h1><p data-size="48">What do you wish for in <span class="ue" id="t-en">&nbsp;</span>?</p></div>
+  <div class="title wrap scr s-message"><div class="pill" id="m-pill"></div><h1 data-size="60" id="m-q"></h1><p data-size="36" id="m-qe"></p></div>
+  <div class="title scr s-thanks"><h1 data-size="92">ขอบคุณที่ส่งเสียง</h1><p data-size="52">Thank you for your voice.</p></div>
+
+  <div id="spot" class="dash"><div class="ph"></div><div class="fake" hidden></div></div>
+
+  <div class="below scr s-invite" id="b-invite"><div class="a">วางอิฐหนึ่งก้อนที่นี่เพื่อเริ่ม</div><div class="b">Place a brick here to begin</div></div>
+  <div class="below scr s-embed" id="b-embed"><div class="a">กำลังฝังข้อความลงในอิฐ</div><div class="b">Embedding your message</div></div>
+  <div class="below scr s-thanks" id="b-thanks"><div class="s">ฝังข้อความแล้ว · Message embedded</div></div>
+
+  <div class="bottom scr s-topic blk">
+    <div class="choose" id="choose">เลือกหัวข้อ · Choose a topic</div>
+    <div class="btns" id="btns"></div>
+  </div>
+
+  <div class="msgbox" id="msgwrap">
+    <div class="line"><input id="msg" autocomplete="off" spellcheck="false" maxlength="80" aria-label="Your message"><div class="count" id="count">0 / 80</div></div>
+    <div class="hints"><div class="back" id="back"><span class="t">← กลับไปเลือกหัวข้อ</span><span class="e">Back to topics</span></div><span class="mid">ไม่เกิน 80 ตัวอักษร<br>Up to 80 characters</span><div class="send off" id="send"><span class="t">ส่งข้อความ →</span><span class="e">Send</span></div></div>
+  </div>
+
+  <div class="bottom scr s-thanks blk" style="text-align:center">
+    <div style="font-size:48px;font-weight:600;line-height:1.3">ยกอิฐของคุณออก แล้วนำไปวางบนประติมากรรมกลางลาน</div>
+    <div style="font-size:36px;font-weight:300;line-height:1.3">Lift your brick off the screen and add it to the sculpture.</div>
+  </div>
+
+  <canvas id="fx" width="1920" height="1080"></canvas>
+  <div id="dot"></div>
+  <div id="cal"></div>
+  <div id="dbg"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const W = 1920, H = 1080;
+const BRICK_MM = [215, 75], FRAME_MARGIN_MM = 8, BRICK_C = [960, 582];
+const BG_BASE = [58, 61, 68];            // brick off: a lighter grey
+const DARKEN = 0.42;                     // brick on: much darker (about the old dark). Later: brick colour
+const IDLE_MESSAGE_MS = 90000;           // nobody typing on the message screen -> back to topics
+const LEFT_GRACE_MS = 1500;              // brick gone this long -> back to the start
+const qs = new URLSearchParams(location.search);
+const DEBUG = qs.has("debug"), CAL = qs.has("calibrate");
+const $ = s => document.querySelector(s);
+const stage = $("#stage"), input = $("#msg"), fx = $("#fx"), ctx = fx.getContext("2d");
+if (DEBUG) document.body.classList.add("debug");
+if (CAL) document.body.classList.add("cal");
+
+/* ---------- fit the 1920x1080 stage to the window ---------- */
+function fitStage() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  stage.style.transform = `translate(${(innerWidth - W * s) / 2}px,${(innerHeight - H * s) / 2}px) scale(${s})`;
+}
+addEventListener("resize", fitStage); fitStage();
+
+/* ---------- state ---------- */
+let TOPICS = [], CFG = { screen_w_mm: 697.3, cal_points: [], max_len: 80 };
+let state = "invite", picked = null, enteredAt = performance.now(), lastTyping = 0;
+let brick = false, brickChangedAt = 0, debugBrick = null, touches = [], server = { lidar: "?", hz: 0 };
+let BR = null, FR = null;   // brick and frame rects in stage px
+const btnEls = [];
+
+function setBg(dark) {
+  const c = BG_BASE.map(v => Math.round(v * (dark ? DARKEN : 1)));
+  document.documentElement.style.setProperty("--bg", `rgb(${c})`);
+}
+
+function layout() {
+  const ppm = W / CFG.screen_w_mm;
+  const bw = BRICK_MM[0] * ppm, bh = BRICK_MM[1] * ppm, m = FRAME_MARGIN_MM * ppm;
+  BR = { x: BRICK_C[0] - bw / 2, y: BRICK_C[1] - bh / 2, w: bw, h: bh };
+  FR = { x: BR.x - m, y: BR.y - m, w: bw + 2 * m, h: bh + 2 * m };
+  const sp = $("#spot");
+  Object.assign(sp.style, { left: FR.x + "px", top: FR.y + "px", width: FR.w + "px", height: FR.h + "px" });
+  for (const el of [sp.querySelector(".ph"), sp.querySelector(".fake")]) Object.assign(el.style, { width: bw + "px", height: bh + "px" });
+  for (const id of ["#b-invite", "#b-embed", "#b-thanks"]) $(id).style.top = (FR.y + FR.h + 36) + "px";
+  if (CAL) $("#cal").innerHTML = CFG.cal_points.map((p, i) =>
+    `<div class="cross" style="left:${p[0] * W}px;top:${(1 - p[1]) * H}px"><b>${i + 1}</b></div>`).join("");
+}
+
+/* shrink text (data-size = largest size) until a block fits its box */
+function fitBlock(box) {
+  const els = [...box.querySelectorAll("[data-size]")];
+  for (let s = 1; s >= 0.45; s -= 0.03) {
+    els.forEach(e => e.style.fontSize = (e.dataset.size * s) + "px");
+    const kids = [...box.children], gap = parseFloat(getComputedStyle(box).rowGap) || 0;
+    const used = kids.reduce((a, k) => a + k.offsetHeight, 0) + gap * (kids.length - 1);
+    if (used <= box.clientHeight && els.every(e => e.scrollWidth <= box.clientWidth + 1)) return;
+  }
+}
+function fitOne(el, max, min) {
+  for (let s = max; s >= min; s -= 1) { el.style.fontSize = s + "px"; if (el.scrollWidth <= el.parentElement.clientWidth - 32) return; }
+}
+function refit() { document.querySelectorAll(".title").forEach(b => { if (getComputedStyle(b).display !== "none") fitBlock(b); }); }
+
+function buildButtons() {
+  const box = $("#btns"); box.innerHTML = "";
+  TOPICS.forEach(t => {
+    const b = document.createElement("div"); b.className = "btn"; b.dataset.id = t.id;
+    b.innerHTML = `<span class="t">${t.th}</span><span class="e">${t.en}</span>`;
+    box.appendChild(b); btnEls.push(b);
+    if (DEBUG) b.addEventListener("mousedown", e => { e.preventDefault(); pick(t.id); });
+  });
+}
+function fitButtons() { rcache.clear(); btnEls.forEach(b => { fitOne(b.querySelector(".t"), 34, 20); fitOne(b.querySelector(".e"), 22, 14); }); }
+
+/* ---------- screens ---------- */
+const PROG = { invite: 0, topic: 1, message: 2, embed: 3, thanks: 3 };
+function go(s) {
+  state = s; enteredAt = performance.now(); stage.dataset.s = s;
+  document.querySelectorAll(".prog span").forEach((d, i) => d.classList.toggle("on", i === PROG[s]));
+  const sp = $("#spot");
+  sp.className = s === "invite" ? "dash" : s === "embed" ? "none" : s === "thanks" ? "glow" : "solid";
+  sp.querySelector(".ph").hidden = s !== "invite";
+  if (s === "invite") { picked = null; input.value = ""; showPick(); stopEmbed(); }
+  if (s === "topic") { input.value = ""; showPick(); requestAnimationFrame(fitButtons); }
+  if (s === "message") { rcache.delete($("#back")); rcache.delete($("#send")); const t = topic(picked); $("#m-pill").textContent = `${t.th} · ${t.en}`; $("#m-q").textContent = t.q_th; $("#m-qe").textContent = t.q_en; updateCount(); lastTyping = performance.now(); }
+  if (s === "embed") startEmbed(input.value.trim());
+  requestAnimationFrame(refit);
+  input.focus();
+}
+const topic = id => TOPICS.find(t => t.id === id);
+function showPick() {
+  btnEls.forEach(b => b.classList.toggle("on", b.dataset.id === picked));
+  const t = topic(picked);
+  $("#t-th").textContent = t ? t.th : " "; $("#t-en").textContent = t ? t.en.toLowerCase() : " ";
+  $("#choose").textContent = "เลือกหัวข้อ · Choose a topic";
+  requestAnimationFrame(refit);
+}
+function pick(id) {
+  if (state !== "topic") return;
+  picked = id; showPick();
+  setTimeout(() => { if (state === "topic" && picked === id) go("message"); }, 300);   // show the highlight, then move on
+}
+
+/* ---------- brick ---------- */
+function setBrick(on) {
+  if (on === brick) return;
+  brick = on; brickChangedAt = performance.now(); setBg(on);
+  $("#spot .fake").hidden = !(DEBUG && on);
+  if (on && state === "invite") go("topic");
+}
+function brickTick(now) {
+  if (!brick && now - brickChangedAt > LEFT_GRACE_MS) {
+    if (state === "topic" || state === "message") go("invite");
+    if (state === "thanks" && now - enteredAt > 2500) go("invite");
+  }
+  if (state === "message" && now - lastTyping > IDLE_MESSAGE_MS) go("topic");
+}
+
+/* ---------- touch (LiDAR) ---------- */
+const btnDown = {};
+function touchTick(now) {
+  const dot = $("#dot"); let shown = false;
+  if (state === "topic") {
+    for (const [u, v] of touches) {
+      const x = u * W, y = (1 - v) * H;
+      const b = btnEls.find(el => { const r = rectOf(el); return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; });
+      if (!b) continue;                                   // touches outside the buttons are ignored
+      if (!shown) { dot.style.left = x + "px"; dot.style.top = y + "px"; shown = true; }
+      const id = b.dataset.id;
+      if (!btnDown[id]) pick(id);
+      btnDown[id] = now;
+    }
+  }
+  if (state === "message") {
+    for (const [id, action] of [["back", () => go("topic")], ["send", submit]]) {
+      const el = $("#" + id), r = rectOf(el);
+      for (const [u, v] of touches) {
+        const x = u * W, y = (1 - v) * H;
+        if (x < r.x || x > r.x + r.w || y < r.y || y > r.y + r.h) continue;
+        dot.style.left = x + "px"; dot.style.top = y + "px"; shown = true;
+        if (!btnDown[id]) { el.classList.add("on"); setTimeout(() => { el.classList.remove("on"); if (state === "message") action(); }, 180); }
+        btnDown[id] = now;
+      }
+    }
+  }
+  for (const id in btnDown) if (now - btnDown[id] > 250) delete btnDown[id];
+  dot.style.display = shown ? "block" : "none";
+}
+const rcache = new Map();
+function rectOf(el) {      // button rect in stage px (stage is scaled, so use offsets)
+  let r = rcache.get(el); if (r) return r;
+  let x = 0, y = 0, e = el; while (e && e !== stage) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; }
+  r = { x, y, w: el.offsetWidth, h: el.offsetHeight }; rcache.set(el, r); return r;
+}
+
+/* ---------- typing ---------- */
+function updateCount() { $("#count").textContent = `${[...input.value].length} / ${CFG.max_len}`; $("#send").classList.toggle("off", !input.value.trim()); }
+function submit() {
+  const t = input.value.trim();
+  if (!t) { const l = $(".line"); l.classList.remove("nudge"); void l.offsetWidth; l.classList.add("nudge"); return; }
+  send(picked, t); go("embed");
+}
+input.addEventListener("input", () => {
+  lastTyping = performance.now();
+  if (state === "topic") {
+    // typing before picking a topic: nudge the "Choose a topic" label
+    input.value = ""; const c = $("#choose"); c.classList.remove("nudge"); void c.offsetWidth; c.classList.add("nudge");
+  } else if (state !== "message") input.value = "";
+  updateCount();
+});
+input.addEventListener("keydown", e => {
+  if (e.isComposing) return;
+  if (state === "message" && e.key === "Enter") { e.preventDefault(); submit(); }
+  if (state === "message" && e.key === "Escape") go("topic");
+});
+input.addEventListener("blur", () => setTimeout(() => input.focus(), 0));
+document.addEventListener("mousedown", e => { if (!e.target.closest(".btn")) { e.preventDefault(); input.focus(); } });
+$("#back").addEventListener("mousedown", e => { e.preventDefault(); if (state === "message") go("topic"); });
+$("#send").addEventListener("mousedown", e => { e.preventDefault(); if (state === "message") submit(); });
+addEventListener("keydown", e => {
+  if (DEBUG && e.key === "F2") { e.preventDefault(); debugBrick = !brick; setBrick(debugBrick); }
+});
+
+/* ---------- saving (retries if the server is unreachable) ---------- */
+const PENDING_KEY = "dc-pending";
+const loadPending = () => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; } };
+const savePending = a => { try { localStorage.setItem(PENDING_KEY, JSON.stringify(a)); } catch (e) {} };
+function send(topicId, message) { const p = loadPending(); p.push({ topic: topicId, message, color: "" }); savePending(p); flush(); }
+let flushing = false;
+async function flush() {
+  if (flushing) return; flushing = true;
+  try {
+    let p = loadPending();
+    while (p.length) {
+      const r = await fetch("/api/message", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p[0]) });
+      if (!r.ok && r.status !== 400) break;
+      p.shift(); savePending(p);
+    }
+  } catch (e) { /* offline: try again later */ }
+  flushing = false;
+}
+setInterval(flush, 5000);
+
+/* ---------- Direction B: drawn in (no dashed outline, the real brick covers the points) ---------- */
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
+const eOut = t => 1 - Math.pow(1 - t, 3), eIO2 = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const seg01 = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+function rnd(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+const TEXT_Y = 310, TEXT_MAXW = 1720, EMBED_MS = 5600;
+const EMBED_SLOW = 1.25;     // 1.25 = the whole embedding animation runs 25% longer (about 7 s)
+const seg = (typeof Intl !== "undefined" && Intl.Segmenter) ? new Intl.Segmenter("th", { granularity: "word" }) : null;
+function wrapLines(c, text, maxW) {
+  const words = seg ? [...seg.segment(text)].map(s => s.segment) : [...text];
+  const lines = []; let cur = "";
+  for (const w of words) { if (cur && c.measureText(cur + w).width > maxW) { lines.push(cur.trim()); cur = w; } else cur += w; }
+  if (cur.trim()) lines.push(cur.trim()); return lines;
+}
+let E = null;   // running embed animation
+function startEmbed(text) {
+  const tc = document.createElement("canvas"); tc.width = W; tc.height = H; const x = tc.getContext("2d");
+  let px = 88, lines;
+  for (; px >= 40; px -= 4) { x.font = `700 ${px}px Plex`; lines = wrapLines(x, text, TEXT_MAXW); if (lines.length <= 2) break; }
+  x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle";
+  lines.forEach((l, i) => x.fillText(l, W / 2, TEXT_Y + (i - (lines.length - 1) / 2) * px * 1.25));
+  const d = x.getImageData(0, 0, W, H).data, pts = [], r = rnd(42), step = 3; let minX = W, maxX = 0;
+  for (let y = 0; y < H * 0.5; y += step) for (let xx = 0; xx < W; xx += step) if (d[(y * W + xx) * 4 + 3] > 110) {
+    minX = Math.min(minX, xx); maxX = Math.max(maxX, xx);
+    pts.push({ x: xx + (r() - .5) * step, y: y + (r() - .5) * step, r1: r(), r2: r(), r3: r(), r4: r(),
+               tx: BR.x + 30 + r() * (BR.w - 60), ty: BR.y + 30 + r() * (BR.h - 60) });
+  }
+  for (const p of pts) p.u = (p.x - minX) / Math.max(1, maxX - minX);
+  E = { t0: performance.now(), tc, pts };
+}
+function stopEmbed() { E = null; ctx.clearRect(0, 0, W, H); }
+function glowUnder(k) {
+  if (k <= 0) return; ctx.save(); ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 3; i++) { ctx.shadowColor = `rgba(255,255,255,${0.85 * k})`; ctx.shadowBlur = 74 * (1 + i * 0.8); ctx.fillStyle = `rgba(255,255,255,${0.3 * k})`; ctx.fillRect(BR.x + 16, BR.y + 16, BR.w - 32, BR.h - 32); }
+  ctx.restore();
+}
+function drawEmbed(now) {
+  ctx.clearRect(0, 0, W, H); if (!E) return;
+  const t = (now - E.t0) / EMBED_SLOW, ap = seg01(t, 0, 600), gl = seg01(t, 600, 1300), br = seg01(t, 1300, 1700);
+  const a = ap * (1 - br);
+  if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.shadowColor = "#fff"; ctx.shadowBlur = 6 + 22 * gl; ctx.drawImage(E.tc, 0, (1 - ap) * 16); ctx.restore(); }
+  let n = 0;
+  if (t >= 1300) {
+    const drift = eOut(seg01(t, 1300, 2300));
+    ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "#fff";
+    for (const p of E.pts) {
+      const d0 = 2100 + p.u * 600 + p.r1 * 500, k = seg01(t, d0, d0 + 1300 + p.r2 * 500);
+      if (k >= 1) { n++; continue; }
+      const an = p.r3 * Math.PI * 2, dx = p.x + Math.cos(an) * (70 + 90 * p.r4) * drift, dy = p.y + Math.sin(an) * (50 + 70 * p.r1) * drift - 24 * drift, e = eIO2(k);
+      const side = p.x < W / 2 ? -1 : 1, mx = lerp(dx, p.tx, .5) + side * (380 + p.r4 * 360), my = lerp(dy, p.ty, .5) + (p.r3 - .5) * 260;
+      const px = (1 - e) ** 2 * dx + 2 * (1 - e) * e * mx + e * e * p.tx, py = (1 - e) ** 2 * dy + 2 * (1 - e) * e * my + e * e * p.ty;
+      ctx.globalAlpha = br * (0.55 + 0.45 * p.r2); const s = 4.6 + p.r1 * 4.2; ctx.fillRect(px - s / 2, py - s / 2, s, s);
+    }
+    ctx.restore();
+  }
+  glowUnder((n / Math.max(1, E.pts.length)) * 0.75);
+  if (t > EMBED_MS) { stopEmbed(); go("thanks"); }
+}
+
+/* ---------- live connection to server.py ---------- */
+function onState(s) { server = s; touches = s.touches || []; if (debugBrick === null) setBrick(!!s.brick); }
+if (DEBUG) window.__state = onState;      // lets you fake LiDAR input from the console
+function connect() {
+  const es = new EventSource("/events?ch=station");
+  es.addEventListener("state", ev => onState(JSON.parse(ev.data)));
+  es.onerror = () => { server = { lidar: "server offline" }; touches = []; };
+}
+
+/* ---------- glowing bezel: a light running round the brick outline while it is on ---------- */
+const TRAIL = { lapMs: 2200, n: 80, step: 5, size: 10 };   // lap time, dots, px between dots, dot px
+let trailOn = false, trailT0 = 0;
+function perimPoint(d) {
+  const x0 = FR.x + 2, y0 = FR.y + 2, w = FR.w - 4, h = FR.h - 4, P = 2 * (w + h);
+  d = ((d % P) + P) % P;
+  if (d < w) return [x0 + d, y0]; d -= w;
+  if (d < h) return [x0 + w, y0 + d]; d -= h;
+  if (d < w) return [x0 + w - d, y0 + h]; d -= w;
+  return [x0, y0 + h - d];
+}
+function drawTrail(now) {
+  if (!trailOn) { trailOn = true; trailT0 = now; }
+  ctx.clearRect(0, 0, W, H);
+  const t = now - trailT0, fade = Math.min(1, t / 400), P = 2 * (FR.w + FR.h - 8);
+  const head = (t / TRAIL.lapMs) * P;
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  ctx.strokeStyle = `rgba(255,255,255,${0.10 * fade})`; ctx.lineWidth = 10; ctx.shadowColor = "rgba(255,255,255,.6)"; ctx.shadowBlur = 24;
+  ctx.strokeRect(FR.x + 2, FR.y + 2, FR.w - 4, FR.h - 4);                       // soft bezel glow
+  ctx.shadowBlur = 22; ctx.shadowColor = "rgba(255,236,190,.95)";
+  for (let k = 0; k < TRAIL.n; k++) {
+    const [px, py] = perimPoint(head - k * TRAIL.step), a = fade * Math.pow(1 - k / TRAIL.n, 1.6);
+    const s = TRAIL.size * (1 - 0.5 * k / TRAIL.n);
+    ctx.fillStyle = `rgba(255,246,220,${a})`; ctx.fillRect(px - s / 2, py - s / 2, s, s);
+  }
+  ctx.restore();
+}
+function clearTrail() { if (trailOn) { trailOn = false; ctx.clearRect(0, 0, W, H); } }
+
+/* ---------- main loop ---------- */
+function frame(now) {
+  touchTick(now); brickTick(now);
+  if (state === "embed") { trailOn = false; drawEmbed(now); }
+  else if (brick && (state === "topic" || state === "message")) drawTrail(now);
+  else clearTrail();
+  if (DEBUG) $("#dbg").textContent = `lidar:${server.lidar} ${server.hz || 0}Hz  brick:${brick}${debugBrick !== null ? "(F2)" : ""}  state:${state}  topic:${picked || "-"}  touches:${JSON.stringify(touches)}`;
+  requestAnimationFrame(frame);
+}
+
+async function init() {
+  try { CFG = Object.assign(CFG, await (await fetch("/api/config")).json()); } catch (e) {}
+  TOPICS = await (await fetch("/topics.json")).json();
+  await Promise.all([300, 400, 600, 700].map(w => document.fonts.load(`${w} 40px Plex`, "กขabc")));
+  layout(); buildButtons(); setBg(false); go("invite");
+  requestAnimationFrame(refit);
+  connect(); flush(); requestAnimationFrame(frame);
+}
+init();
+})();
+</script>
+</body>
+</html>

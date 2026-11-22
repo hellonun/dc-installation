@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Your Dream Constitution · Messages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-thai-thai-400-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:600;src:url(fonts/ibm-plex-sans-thai-thai-600-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:700;src:url(fonts/ibm-plex-sans-thai-thai-700-normal.woff2) format("woff2");unicode-range:U+0E00-0E7F,U+200C-200D}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-thai-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+@font-face{font-family:Plex;font-weight:600;src:url(fonts/ibm-plex-sans-thai-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+@font-face{font-family:Plex;font-weight:700;src:url(fonts/ibm-plex-sans-thai-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;cursor:none}
+canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+(() => {
+"use strict";
+/* Portrait 15.6" screen, 1080 x 1920. Messages stacked as bricks, scrolling upward forever.
+   ?screen=1|2|3 starts each screen at a different point in the list.
+   ?landscape=1 for testing on a normal monitor. */
+const qs = new URLSearchParams(location.search);
+const W = 1080, H = 1920, SPEED = 48;                 // px per second
+const BG = "#0E1430", SUN = "#F2C14E", SKY = "#9DB8E8", INK_LIGHT = "#FFF7E2";
+const BRICK_COLOR = "#A65A5A";
+const HEAD = 230, BH = 250, GAP = 26, BX = 56, BW = W - 112;
+const STEP = BH + GAP, CACHE_KEY = "dc-wall-cache";
+const c = document.getElementById("c"), x = c.getContext("2d");
+const SCREEN = Math.max(1, parseInt(qs.get("screen") || "1", 10));
+
+function fit() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  c.style.transform = `translate(${(innerWidth - W * s) / 2}px,${(innerHeight - H * s) / 2}px) scale(${s})`;
+}
+addEventListener("resize", fit); fit();
+
+let TOPICS = {}, all = [], fresh = [], ptr = 0, belt = [], lastT = 0;
+const seen = new Set();
+
+function cacheSave() { try { localStorage.setItem(CACHE_KEY, JSON.stringify(all.slice(-500))); } catch (e) {} }
+function cacheLoad() { try { return JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); } catch (e) { return []; } }
+function addMessages(list, isNew) {
+  for (const m of list) {
+    if (!m || !m.id || seen.has(m.id)) continue;
+    seen.add(m.id); all.push(m);
+    if (isNew) fresh.push(m);            // new ones jump the queue and appear next
+  }
+  if (all.length > 2000) all = all.slice(-2000);
+}
+
+/* Thai-aware line wrapping */
+const seg = (typeof Intl !== "undefined" && Intl.Segmenter) ? new Intl.Segmenter("th", { granularity: "word" }) : null;
+function wrap(text, maxW) {
+  const words = seg ? [...seg.segment(text)].map(s => s.segment) : [...text];
+  const lines = []; let cur = "";
+  for (const w of words) { if (cur && x.measureText(cur + w).width > maxW) { lines.push(cur.trim()); cur = w; } else cur += w; }
+  if (cur.trim()) lines.push(cur.trim()); return lines;
+}
+function rnd(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function hash(str) { let h = 2166136261; for (const ch of str) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+/* each brick is drawn once into its own small canvas */
+function makeBrick(m, isFresh) {
+  const b = document.createElement("canvas"); b.width = BW; b.height = BH; const g = b.getContext("2d");
+  const col = /^#[0-9a-f]{6}$/i.test(m.color || "") ? m.color : BRICK_COLOR;
+  g.fillStyle = col; roundRect(g, 0, 0, BW, BH, 14); g.fill();
+  const r = rnd(hash(m.id));
+  for (let i = 0; i < 260; i++) { const v = r(); g.fillStyle = v < 0.5 ? "rgba(70,40,25,.22)" : "rgba(255,240,220,.26)"; g.fillRect(r() * BW, r() * BH, 3 + r() * 4, 3 + r() * 4); }
+  const t = TOPICS[m.topic];
+  g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = INK_LIGHT;
+  if (t) { g.globalAlpha = 0.8; g.font = "600 26px Plex"; g.fillText(`${t.th} · ${t.en}`, BW / 2, 38, BW - 60); g.globalAlpha = 1; }
+  let px = 60, lines = [];
+  for (; px >= 30; px -= 2) { x.font = g.font = `600 ${px}px Plex`; lines = wrap(m.message, BW - 90); if (lines.length * px * 1.25 <= BH - 90 && lines.length <= 3) break; }
+  g.font = `600 ${px}px Plex`;
+  lines.forEach((l, i) => g.fillText(l, BW / 2, 38 + (BH - 38) / 2 + 10 + (i - (lines.length - 1) / 2) * px * 1.25, BW - 60));
+  return { img: b, fresh: isFresh, born: performance.now() };
+}
+function roundRect(g, X, Y, w, h, r) { g.beginPath(); g.moveTo(X + r, Y); g.arcTo(X + w, Y, X + w, Y + h, r); g.arcTo(X + w, Y + h, X, Y + h, r); g.arcTo(X, Y + h, X, Y, r); g.arcTo(X, Y, X + w, Y, r); g.closePath(); }
+
+function nextMessage() {
+  if (fresh.length) return [fresh.shift(), true];
+  if (!all.length) return [null, false];
+  const order = all.slice().reverse();                 // newest first, then loop
+  const m = order[ptr % order.length]; ptr++; return [m, false];
+}
+function refill() {
+  let lastY = belt.length ? belt[belt.length - 1].y : HEAD - STEP + 40;
+  while (lastY < H + STEP) {
+    const [m, isFresh] = nextMessage(); if (!m) break;
+    lastY += STEP; belt.push(Object.assign(makeBrick(m, isFresh), { y: lastY, m }));
+  }
+}
+
+function draw(now) {
+  const dt = lastT ? Math.min(100, now - lastT) / 1000 : 0; lastT = now;
+  for (const b of belt) b.y -= SPEED * dt;
+  while (belt.length && belt[0].y + BH < HEAD - 20) belt.shift();
+  refill();
+  x.fillStyle = BG; x.fillRect(0, 0, W, H);
+  if (!belt.length) {
+    x.font = "400 40px Plex"; x.fillStyle = "#8C93AB"; x.textAlign = "center"; x.textBaseline = "middle";
+    x.fillText("ยังไม่มีข้อความ · No messages yet", W / 2, H / 2);
+  }
+  x.save(); x.beginPath(); x.rect(0, HEAD, W, H - HEAD); x.clip();
+  belt.forEach((b, i) => {
+    const off = (i + (b.m ? hash(b.m.id) : 0)) % 2 ? 18 : -18;      // a little running-bond offset
+    if (b.fresh) {                                                   // new message: soft glow for 20 s
+      const k = Math.max(0, 1 - (now - b.born) / 20000);
+      if (k > 0) { x.save(); x.shadowColor = `rgba(255,214,120,${0.9 * k})`; x.shadowBlur = 50; x.drawImage(b.img, BX + off, b.y); x.restore(); return; }
+    }
+    x.drawImage(b.img, BX + off, b.y);
+  });
+  x.restore();
+  // header
+  x.fillStyle = BG; x.fillRect(0, 0, W, HEAD);
+  x.textAlign = "center"; x.textBaseline = "middle";
+  x.font = "700 56px Plex"; x.fillStyle = SUN; x.fillText("รัฐธรรมนูญในฝันของคุณ", W / 2, 92, W - 80);
+  x.font = "600 34px Plex"; x.fillStyle = SKY; x.fillText("YOUR DREAM CONSTITUTION", W / 2, 158, W - 80);
+  x.strokeStyle = "rgba(255,255,255,.3)"; x.lineWidth = 3; x.beginPath(); x.moveTo(60, HEAD - 12); x.lineTo(W - 60, HEAD - 12); x.stroke();
+  requestAnimationFrame(draw);
+}
+
+async function load() {
+  try { const r = await fetch("/api/messages?limit=500"); if (r.ok) { addMessages(await r.json(), false); cacheSave(); return true; } } catch (e) {}
+  return false;
+}
+function connect() {
+  const es = new EventSource("/events?ch=wall");
+  es.addEventListener("message", ev => { try { addMessages([JSON.parse(ev.data)], true); cacheSave(); } catch (e) {} });
+  es.onopen = () => load();              // catch up on anything missed while disconnected
+}
+
+async function init() {
+  try { (await (await fetch("/topics.json")).json()).forEach(t => TOPICS[t.id] = t); } catch (e) {}
+  await Promise.all([400, 600, 700].map(w => document.fonts.load(`${w} 40px Plex`, "กขabc")));
+  addMessages(cacheLoad(), false);
+  await load();
+  ptr = Math.floor(all.length * (SCREEN - 1) / 3);   // each screen starts somewhere else
+  connect();
+  requestAnimationFrame(draw);
+}
+init();
+})();
+</script>
+</body>
+</html>
