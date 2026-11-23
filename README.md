@@ -24,7 +24,7 @@ Without the sensor: `python server.py --nolidar` and open **http://localhost:808
 
 ## The flow
 1. **Invite.** Put a brick on the spot. The screen goes darker.
-2. **Choose a topic.** Tap one of the 4 topics, then start typing on the keyboard.
+2. **Choose a topic.** Until someone taps, the heading cycles through the 4 topics every 3.2 s ("อยากเสนออะไรในเรื่อง … / What would you propose for …?"), each with a preview of the exact question asked next, and the matching button's outline lights up yellow. Tap a topic, then start typing on the keyboard.
 3. **Write your message.** Up to 80 characters, then Enter. Esc goes back to the topics.
 4. **Embedding.** Direction B, drawn in, with no dashed outline.
 5. **Thank you.** It asks them to lift the brick off. Once the brick is gone, it's back to step 1.

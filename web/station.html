@@ -52,6 +52,10 @@ body.debug{cursor:default}
 .btn .t{font-size:34px;font-weight:600;line-height:1.2;white-space:nowrap}
 .btn .e{font-size:22px;font-weight:400;line-height:1.2;white-space:nowrap}
 .btn.on{background:#fff;color:#2B2D31;border-color:#fff}
+.btn.hi{border-color:#FFC531;box-shadow:0 0 0 3px #FFC531,0 0 28px rgba(255,197,49,.45)}
+.rot{transition:opacity .35s ease}
+.rot.fade{opacity:0}
+.qprev{font-weight:400!important;opacity:.85;margin-top:6px!important}
 .msgbox{position:absolute;left:200px;right:200px;bottom:64px}
 .line{border-bottom:4px solid #fff;padding-bottom:16px;display:flex;align-items:flex-end;gap:32px}
 #msg{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;caret-color:#fff;font:600 76px/1.3 Plex,sans-serif;padding:0}
@@ -94,7 +98,7 @@ body.debug{cursor:default}
   </div>
 
   <div class="title scr s-invite"><h1 data-size="92">เสียงของคุณ สร้างความเปลี่ยนแปลงได้</h1><p data-size="52">Your voice can create change.</p></div>
-  <div class="title scr s-topic"><h1 data-size="80">คุณอยากเห็นอะไรใน<span class="u" id="t-th">&nbsp;</span></h1><p data-size="48">What do you wish for in <span class="ue" id="t-en">&nbsp;</span>?</p></div>
+  <div class="title scr s-topic"><h1 data-size="76">อยากเสนออะไรในเรื่อง<span class="u rot" id="t-th">&nbsp;</span></h1><p data-size="46">What would you propose for <span class="ue rot" id="t-en">&nbsp;</span>?</p><p class="qprev rot" data-size="30" id="t-q">&nbsp;</p></div>
   <div class="title wrap scr s-message"><div class="pill" id="m-pill"></div><h1 data-size="60" id="m-q"></h1><p data-size="36" id="m-qe"></p></div>
   <div class="title scr s-thanks"><h1 data-size="92">ขอบคุณที่ส่งเสียง</h1><p data-size="52">Thank you for your voice.</p></div>
 
@@ -208,17 +212,39 @@ function go(s) {
   sp.className = s === "invite" ? "dash" : s === "embed" ? "none" : s === "thanks" ? "glow" : "solid";
   sp.querySelector(".ph").hidden = s !== "invite";
   if (s === "invite") { picked = null; input.value = ""; showPick(); stopEmbed(); }
-  if (s === "topic") { input.value = ""; showPick(); requestAnimationFrame(fitButtons); }
+  if (s === "topic") { input.value = ""; picked = null; showPick(); requestAnimationFrame(fitButtons); }
+  if (s !== "topic") stopRotate();
   if (s === "message") { rcache.delete($("#back")); rcache.delete($("#send")); const t = topic(picked); $("#m-pill").textContent = `${t.th} · ${t.en}`; $("#m-q").textContent = t.q_th; $("#m-qe").textContent = t.q_en; updateCount(); lastTyping = performance.now(); }
   if (s === "embed") startEmbed(input.value.trim());
   requestAnimationFrame(refit);
   input.focus();
 }
 const topic = id => TOPICS.find(t => t.id === id);
+/* topic screen: until someone picks, the blank cycles through the topics, each with a preview of the exact question
+   asked on the next screen, and the matching button's outline lights up */
+const ROTATE_MS = 3200, BLANK = "\u00a0";
+let rotIdx = 0, rotTimer = null;
+function setHeading(t) {
+  $("#t-th").textContent = t ? t.th : BLANK; $("#t-en").textContent = t ? t.en.toLowerCase() : BLANK;
+  $("#t-q").textContent = t ? `${t.q_th} · ${t.q_en}` : BLANK;
+  requestAnimationFrame(refit);
+}
+function rotateStep(first) {
+  if (state !== "topic" || picked || !TOPICS.length) return;
+  const t = TOPICS[rotIdx % TOPICS.length];
+  const els = ["#t-th", "#t-en", "#t-q"].map(k => $(k));
+  const show = () => { if (state !== "topic" || picked) return; setHeading(t); btnEls.forEach(b => b.classList.toggle("hi", b.dataset.id === t.id)); els.forEach(e => e.classList.remove("fade")); };
+  if (first) show(); else { els.forEach(e => e.classList.add("fade")); setTimeout(show, 350); }
+  rotIdx++;
+}
+function startRotate() { stopRotate(); rotateStep(true); rotTimer = setInterval(() => rotateStep(false), ROTATE_MS); }
+function stopRotate() { if (rotTimer) clearInterval(rotTimer); rotTimer = null; btnEls.forEach(b => b.classList.remove("hi")); ["#t-th", "#t-en", "#t-q"].forEach(k => $(k).classList.remove("fade")); }
 function showPick() {
   btnEls.forEach(b => b.classList.toggle("on", b.dataset.id === picked));
   const t = topic(picked);
-  $("#t-th").textContent = t ? t.th : " "; $("#t-en").textContent = t ? t.en.toLowerCase() : " ";
+  if (t) { stopRotate(); setHeading(t); }
+  else if (state === "topic") startRotate();
+  else { stopRotate(); setHeading(null); }
   $("#choose").textContent = "เลือกหัวข้อ · Choose a topic";
   requestAnimationFrame(refit);
 }
