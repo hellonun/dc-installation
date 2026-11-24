@@ -28,8 +28,8 @@ body.debug{cursor:default}
 .title h1{margin:0;font-weight:700;line-height:1.22;white-space:nowrap}
 .title p{margin:0;font-weight:300;line-height:1.28;white-space:nowrap}
 .title.wrap h1,.title.wrap p{white-space:normal;text-wrap:balance}
-.u{display:inline-block;min-width:300px;margin-left:16px;border-bottom:6px solid #fff;padding:0 6px}
-.ue{display:inline-block;min-width:220px;border-bottom:4px solid #fff;font-weight:600;padding:0 4px}
+.u{display:inline-block;box-sizing:border-box;min-width:300px;margin-left:16px;border-bottom:6px solid #fff;padding:0 6px;text-align:center;white-space:nowrap}
+.ue{display:inline-block;box-sizing:border-box;min-width:220px;border-bottom:4px solid #fff;font-weight:600;padding:0 4px;text-align:center;white-space:nowrap}
 .pill{padding:8px 24px;border:3px solid rgba(255,255,255,.85);border-radius:999px;font-size:26px;font-weight:600}
 #spot{position:absolute;box-sizing:border-box;border-radius:12px;transition:box-shadow .8s,border-color .4s}
 #spot .ph{position:absolute;inset:0;margin:auto;background:rgba(255,255,255,.12);border-radius:4px}
@@ -52,9 +52,10 @@ body.debug{cursor:default}
 .btn .t{font-size:34px;font-weight:600;line-height:1.2;white-space:nowrap}
 .btn .e{font-size:22px;font-weight:400;line-height:1.2;white-space:nowrap}
 .btn.on{background:#fff;color:#2B2D31;border-color:#fff}
-.btn.hi{border-color:#FFC531;box-shadow:0 0 0 3px #FFC531,0 0 28px rgba(255,197,49,.45)}
-.rot{transition:opacity .35s ease}
-.rot.fade{opacity:0}
+.btn{transition:background .2s,color .2s,box-shadow .5s,border-color .5s}
+.btn.hi{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 36px 4px rgba(255,255,255,.45)}
+.rot{transition:color .35s ease}
+.rot.fade{color:transparent}
 .qprev{font-weight:400!important;opacity:.85;margin-top:6px!important}
 .msgbox{position:absolute;left:200px;right:200px;bottom:64px}
 .line{border-bottom:4px solid #fff;padding-bottom:16px;display:flex;align-items:flex-end;gap:32px}
@@ -195,7 +196,19 @@ function fitBlock(box) {
 function fitOne(el, max, min) {
   for (let s = max; s >= min; s -= 1) { el.style.fontSize = s + "px"; if (el.scrollWidth <= el.parentElement.clientWidth - 32) return; }
 }
-function refit() { document.querySelectorAll(".title").forEach(b => { if (getComputedStyle(b).display !== "none") fitBlock(b); }); }
+/* the blanks keep one fixed width (the widest topic) and one font size, so the question never moves when the topic changes */
+function refit() {
+  document.querySelectorAll(".title").forEach(b => {
+    if (getComputedStyle(b).display === "none") return;
+    const slots = [...b.querySelectorAll(".u,.ue")];
+    if (!slots.length || !TOPICS.length) return fitBlock(b);
+    const keep = slots.map(s => s.textContent), opts = s => TOPICS.map(t => s.classList.contains("u") ? t.th : t.en.toLowerCase());
+    const widest = s => { let w = 0, best = ""; for (const t of opts(s)) { s.textContent = t; if (s.offsetWidth > w) { w = s.offsetWidth; best = t; } } return [best, w]; };
+    slots.forEach(s => { s.style.width = ""; s.textContent = widest(s)[0]; });
+    fitBlock(b);
+    slots.forEach((s, i) => { s.style.width = widest(s)[1] + "px"; s.textContent = keep[i]; });
+  });
+}
 
 function buildButtons() {
   const box = $("#btns"); box.innerHTML = "";
