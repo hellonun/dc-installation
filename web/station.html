@@ -32,13 +32,15 @@ body.debug{cursor:default}
 .ue{display:inline-block;box-sizing:border-box;min-width:220px;border-bottom:4px solid #fff;font-weight:600;padding:0 4px;text-align:center;white-space:nowrap}
 .pill{padding:8px 24px;border:3px solid rgba(255,255,255,.85);border-radius:999px;font-size:26px;font-weight:600}
 #spot{position:absolute;box-sizing:border-box;border-radius:12px;transition:box-shadow .8s,border-color .4s}
+#spot .fill{position:absolute;inset:4px;border-radius:8px;background:var(--bc,#fff);opacity:0;transition:opacity .6s,background-color .6s}
+#spot.col .fill{opacity:1}
 #spot .ph{position:absolute;inset:0;margin:auto;background:rgba(255,255,255,.12);border-radius:4px}
 #spot.dash{border:4px dashed rgba(255,255,255,.85)}
 #spot.solid{border:4px solid rgba(255,255,255,.55)}
 #spot.none{border:4px solid transparent}
-#spot.glow{border:4px solid transparent;box-shadow:0 0 68px 12px rgba(255,255,255,.3)}
+#spot.glow{border:4px solid transparent;box-shadow:0 0 68px 12px var(--bcg,rgba(255,255,255,.3))}
 .debug #spot{z-index:2}
-#spot .fake{position:absolute;inset:0;margin:auto;background:#A65A5A;border-radius:4px;box-shadow:0 12px 28px rgba(0,0,0,.3)}
+#spot .fake{position:absolute;inset:0;margin:auto;background:var(--bfake,#A65A5A);border-radius:4px;box-shadow:0 12px 28px rgba(0,0,0,.3)}
 .below{position:absolute;left:88px;right:88px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
 .below .a{font-size:40px;font-weight:600}
 .below .b{font-size:30px;font-weight:400;opacity:.9}
@@ -59,11 +61,11 @@ body.debug{cursor:default}
 .qprev{font-weight:400!important;opacity:.85;margin-top:6px!important}
 .msgbox{position:absolute;left:200px;right:200px;bottom:64px}
 .line{border-bottom:4px solid #fff;padding-bottom:16px;display:flex;align-items:flex-end;gap:32px}
-#pre{flex:none;font:600 76px/1.3 Plex,sans-serif;opacity:.75;margin-right:-26px}
+#pre{flex:none;font:600 56px/1.3 Plex,sans-serif;opacity:.75;margin-right:-32px}
 #msg::placeholder{color:rgba(255,255,255,.35)}
 #nofocus{position:absolute;right:24px;top:24px;font:600 22px Plex,sans-serif;color:#FFC531;display:none}
 .debug #nofocus.on{display:block}
-#msg{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;caret-color:#fff;font:600 76px/1.3 Plex,sans-serif;padding:0}
+#msg{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;caret-color:#fff;font:600 56px/1.3 Plex,sans-serif;padding:0}
 .count{font-size:28px;opacity:.85;white-space:nowrap}
 .hints{display:flex;justify-content:space-between;align-items:center;gap:32px;margin-top:24px;font-size:26px;opacity:.95}
 .back{height:100px;box-sizing:border-box;padding:0 40px;border-radius:24px;border:4px solid rgba(255,255,255,.75);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;transition:background .2s,color .2s}
@@ -92,6 +94,18 @@ body.debug{cursor:default}
 .cross:before,.cross:after{content:"";position:absolute;background:#FFC531}
 .cross:before{left:38px;top:0;width:4px;height:80px}
 .cross:after{top:38px;left:0;height:4px;width:80px}
+#ccal{position:absolute;inset:0;display:block;transform:translateX(-300%);background:#15171A;color:#fff;font:400 22px Plex,sans-serif;z-index:20}
+.colorcal #ccal{transform:none}
+#ccal .vid{position:absolute;left:60px;top:90px;width:1120px;height:630px;background:#000;cursor:crosshair}
+#ccal video{width:100%;height:100%;object-fit:fill;display:block}
+#ccal .roi{position:absolute;border:3px solid #FFC531;box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none}
+#ccal h2{position:absolute;left:60px;top:24px;margin:0;font-size:32px}
+#ccal .side{position:absolute;left:1230px;top:90px;right:60px;display:flex;flex-direction:column;gap:18px}
+#ccal .row{display:flex;align-items:center;gap:14px}
+#ccal .sw{width:64px;height:44px;border-radius:8px;border:2px solid rgba(255,255,255,.5)}
+#ccal button,#ccal select{font:600 22px Plex,sans-serif;padding:10px 16px;border-radius:10px;border:2px solid #fff;background:transparent;color:#fff;cursor:pointer}
+#ccal .live{font-size:26px;line-height:1.5}
+#ccal .help{position:absolute;left:60px;top:740px;width:1120px;font-size:21px;line-height:1.55;opacity:.9}
 .cross b{position:absolute;left:52px;top:-34px;font-size:36px;color:#FFC531}
 </style>
 </head>
@@ -107,7 +121,7 @@ body.debug{cursor:default}
   <div class="title scr s-message"><h1 data-size="76">คุณอยากเห็นการเปลี่ยนแปลงอะไรในเรื่อง<span class="u" id="m-th"></span></h1><p data-size="46">What change would you like to see in <span class="ue" id="m-en"></span>?</p></div>
   <div class="title scr s-thanks"><h1 data-size="92">ขอบคุณที่ส่งเสียง</h1><p data-size="52">Thank you for your voice.</p></div>
 
-  <div id="spot" class="dash"><div class="ph"></div><div class="fake" hidden></div></div>
+  <div id="spot" class="dash"><div class="fill"></div><div class="ph"></div><div class="fake" hidden></div></div>
 
   <div class="below scr s-invite" id="b-invite"><div class="a">วางอิฐหนึ่งก้อนที่นี่เพื่อเริ่ม</div><div class="b">Place a brick here to begin</div></div>
   <div class="below scr s-embed" id="b-embed"><div class="a">กำลังฝังข้อความลงในอิฐ</div><div class="b">Embedding your message</div></div>
@@ -119,7 +133,7 @@ body.debug{cursor:default}
   </div>
 
   <div class="msgbox" id="msgwrap">
-    <div class="line"><span class="pre" id="pre">อยากเห็น</span><input id="msg" placeholder="…" autocomplete="off" spellcheck="false" maxlength="80" aria-label="Your message"><div class="count" id="count">0 / 80</div></div>
+    <div class="line"><span class="pre" id="pre">อยากเห็น</span><input id="msg" autocomplete="off" spellcheck="false" maxlength="80" aria-label="Your message"><div class="count" id="count">0 / 80</div></div>
     <div class="hints"><div class="back" id="back"><span class="t">← กลับไปเลือกหัวข้อ</span><span class="e">Back to topics</span></div><span class="mid">อยากเห็น… · I want to see…<br>ไม่เกิน 80 ตัวอักษร · Up to 80 characters</span><div class="send off" id="send"><span class="t">ส่งข้อความ →</span><span class="e">Send</span></div></div>
   </div>
 
@@ -132,6 +146,20 @@ body.debug{cursor:default}
   <div id="dot"></div>
   <div id="cal"></div>
   <div id="dbg"></div>
+  <div id="ccal">
+    <h2>Brick colour calibration · ตั้งค่าสีอิฐ</h2>
+    <div class="vid" id="cc-vid"><video id="cam" autoplay muted playsinline></video><div class="roi" id="cc-roi"></div></div>
+    <div class="side">
+      <div class="row"><select id="cc-cam"></select></div>
+      <div class="live" id="cc-live">camera starting…</div>
+      <div id="cc-rows"></div>
+      <div class="row"><button id="cc-clear">Clear all samples</button></div>
+      <div id="cc-msg" style="font-size:20px;opacity:.8"></div>
+    </div>
+    <div class="help">1. Drag a box on the picture over the upper part of the brick's side (not the bottom edge, which catches the screen light).<br>
+      2. Put a <b>red</b> brick on the spot and press <b>1</b> (or its button). Turn it or swap bricks and press again: 3–5 samples per colour. Then <b>orange</b> with <b>2</b>, <b>green</b> with <b>3</b>.<br>
+      3. Check the live guess on the right with each brick. Everything saves to the station computer by itself. Close this page and open /station normally.</div>
+  </div>
   <div id="nofocus">keyboard is going to another window</div>
 </div>
 
@@ -145,11 +173,12 @@ const DARKEN = 0.42;                     // brick on: much darker (about the old
 const IDLE_MESSAGE_MS = 90000;           // nobody typing on the message screen -> back to topics
 const LEFT_GRACE_MS = 1500;              // brick gone this long -> back to the start
 const qs = new URLSearchParams(location.search);
-const DEBUG = qs.has("debug"), CAL = qs.has("calibrate");
+const DEBUG = qs.has("debug"), CAL = qs.has("calibrate"), COLORCAL = qs.has("colorcal");
 const $ = s => document.querySelector(s);
 const stage = $("#stage"), input = $("#msg"), fx = $("#fx"), ctx = fx.getContext("2d");
 if (DEBUG) document.body.classList.add("debug");
 if (CAL) document.body.classList.add("cal");
+if (COLORCAL) document.body.classList.add("colorcal");
 
 /* ---------- fit the 1920x1080 stage to the window ---------- */
 function fitStage() {
@@ -228,7 +257,7 @@ function go(s) {
   document.querySelectorAll(".prog span").forEach((d, i) => d.classList.toggle("on", i === PROG[s]));
   const sp = $("#spot");
   sp.className = s === "invite" ? "dash" : s === "embed" ? "none" : s === "thanks" ? "glow" : "solid";
-  sp.querySelector(".ph").hidden = s !== "invite";
+  sp.querySelector(".ph").hidden = s !== "invite"; sp.classList.toggle("col", !!brickId && brick && s !== "invite");
   if (s === "invite") { picked = null; input.value = ""; showPick(); stopEmbed(); }
   if (s === "topic") { input.value = ""; picked = null; showPick(); requestAnimationFrame(fitButtons); }
   if (s !== "topic") stopRotate();
@@ -276,6 +305,7 @@ function setBrick(on) {
   if (on === brick) return;
   brick = on; brickChangedAt = performance.now(); setBg(on);
   $("#spot .fake").hidden = !(DEBUG && on);
+  if (on) startMeasure(); else setBrickColor(null);
   if (on && state === "invite") go("topic");
 }
 function brickTick(now) {
@@ -326,11 +356,13 @@ function rectOf(el) {      // button rect in stage px (stage is scaled, so use o
 /* ---------- typing ---------- */
 /* prefix + answer shrink together so the whole sentence stays visible */
 const meas = document.createElement("canvas").getContext("2d");
-function fitInput() {
+function fitInput() {      // same size as the question above; the cursor sits right after อยากเห็น, a space appears once they type
+  const q = parseFloat(($(".s-message h1") || {}).style?.fontSize) || 56;
   const room = input.parentElement.clientWidth - $("#count").offsetWidth - 64;
-  let px = 76;
-  for (; px > 36; px -= 2) { meas.font = `600 ${px}px Plex`; if (meas.measureText(PREFIX + input.value + "  ").width <= room) break; }
+  let px = Math.round(q);
+  for (; px > 32; px -= 2) { meas.font = `600 ${px}px Plex`; if (meas.measureText(PREFIX + " " + input.value + "  ").width <= room) break; }
   input.style.fontSize = $("#pre").style.fontSize = px + "px";
+  $("#pre").style.marginRight = (input.value ? -32 + px * 0.3 : -32) + "px";
 }
 function updateCount() { fitInput(); $("#count").textContent = `${[...input.value].length} / ${CFG.max_len}`; $("#send").classList.toggle("off", !input.value.trim()); }
 /* every answer starts "อยากเห็น…": the prefix is fixed on screen, saved with the message and shown on the wall */
@@ -339,7 +371,7 @@ let fullText = "";
 function submit() {
   const t = input.value.trim().replace(new RegExp("^" + PREFIX + "\\s*"), "");
   if (!t) { const l = $(".line"); l.classList.remove("nudge"); void l.offsetWidth; l.classList.add("nudge"); return; }
-  fullText = PREFIX + t; send(picked, fullText); go("embed");
+  fullText = PREFIX + " " + t; send(picked, fullText); go("embed");
 }
 input.addEventListener("input", () => {
   lastTyping = performance.now();
@@ -360,6 +392,7 @@ $("#back").addEventListener("mousedown", e => { e.preventDefault(); if (state ==
 $("#send").addEventListener("mousedown", e => { e.preventDefault(); if (state === "message") submit(); });
 addEventListener("keydown", e => {
   if (DEBUG && e.key === "F2") { e.preventDefault(); debugBrick = !brick; setBrick(debugBrick); }
+  if (DEBUG && e.key === "F3") { e.preventDefault(); const ids = [...BRICKS.map(b => b.id), null]; setBrickColor(ids[(ids.indexOf(brickId) + 1) % ids.length]); }
 });
 
 /* ---------- keep the keyboard on this window ----------
@@ -380,7 +413,7 @@ addEventListener("focus", () => input.focus());
 const PENDING_KEY = "dc-pending";
 const loadPending = () => { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; } };
 const savePending = a => { try { localStorage.setItem(PENDING_KEY, JSON.stringify(a)); } catch (e) {} };
-function send(topicId, message) { const p = loadPending(); p.push({ topic: topicId, message, color: "" }); savePending(p); flush(); }
+function send(topicId, message) { const p = loadPending(); p.push({ topic: topicId, message, color: brickId || "" }); savePending(p); flush(); }
 let flushing = false;
 async function flush() {
   if (flushing) return; flushing = true;
@@ -401,7 +434,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + 
 const eOut = t => 1 - Math.pow(1 - t, 3), eIO2 = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 const seg01 = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
 function rnd(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
-const TEXT_Y = 310, TEXT_MAXW = 1720, EMBED_MS = 5600;
+const TEXT_Y = 300, TEXT_MAXW = 1720, EMBED_MS = 5600, CARD = { w: 1240, h: 300 };
 const EMBED_SLOW = 1.25;     // 1.25 = the whole embedding animation runs 25% longer (about 7 s)
 const seg = (typeof Intl !== "undefined" && Intl.Segmenter) ? new Intl.Segmenter("th", { granularity: "word" }) : null;
 function wrapLines(c, text, maxW) {
@@ -411,12 +444,20 @@ function wrapLines(c, text, maxW) {
   if (cur.trim()) lines.push(cur.trim()); return lines;
 }
 let E = null;   // running embed animation
+/* the message shows as a brick card, like on the wall, in the colour of the real brick, then dissolves into it */
 function startEmbed(text) {
   const tc = document.createElement("canvas"); tc.width = W; tc.height = H; const x = tc.getContext("2d");
-  let px = 88, lines;
-  for (; px >= 40; px -= 4) { x.font = `700 ${px}px Plex`; lines = wrapLines(x, text, TEXT_MAXW); if (lines.length <= 2) break; }
-  x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle";
-  lines.forEach((l, i) => x.fillText(l, W / 2, TEXT_Y + (i - (lines.length - 1) / 2) * px * 1.25));
+  const cc = document.createElement("canvas"); cc.width = W; cc.height = H; const g = cc.getContext("2d");
+  const col = brickHex(), ink = inkFor(col), cx = W / 2 - CARD.w / 2, cy = TEXT_Y - CARD.h / 2, t = topic(picked), b = BRICKS.find(q => q.id === brickId);
+  g.fillStyle = col; rrect(g, cx, cy, CARD.w, CARD.h, 18); g.fill();
+  const rr = rnd(7); for (let i = 0; i < 420; i++) { g.fillStyle = rr() < .5 ? "rgba(70,40,25,.2)" : "rgba(255,240,220,.22)"; g.fillRect(cx + rr() * CARD.w, cy + rr() * CARD.h, 3 + rr() * 4, 3 + rr() * 4); }
+  g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = ink; g.globalAlpha = .8; g.font = "600 28px Plex";
+  if (t) g.fillText(`${t.th} · ${t.en}`, W / 2, cy + 40, CARD.w - 80);
+  if (b) g.fillText(b.gen, W / 2, cy + CARD.h - 34, CARD.w - 80);
+  let px = 72, lines;
+  for (; px >= 36; px -= 2) { x.font = `700 ${px}px Plex`; lines = wrapLines(x, text, CARD.w - 120); if (lines.length <= 2) break; }
+  x.fillStyle = ink; x.textAlign = "center"; x.textBaseline = "middle";
+  lines.forEach((l, i) => x.fillText(l, W / 2, TEXT_Y + 6 + (i - (lines.length - 1) / 2) * px * 1.25));
   const d = x.getImageData(0, 0, W, H).data, pts = [], r = rnd(42), step = 3; let minX = W, maxX = 0;
   for (let y = 0; y < H * 0.5; y += step) for (let xx = 0; xx < W; xx += step) if (d[(y * W + xx) * 4 + 3] > 110) {
     minX = Math.min(minX, xx); maxX = Math.max(maxX, xx);
@@ -424,19 +465,20 @@ function startEmbed(text) {
                tx: BR.x + 30 + r() * (BR.w - 60), ty: BR.y + 30 + r() * (BR.h - 60) });
   }
   for (const p of pts) p.u = (p.x - minX) / Math.max(1, maxX - minX);
-  E = { t0: performance.now(), tc, pts };
+  E = { t0: performance.now(), tc, cc, pts, dark: ink !== INK_LIGHT };
 }
 function stopEmbed() { E = null; ctx.clearRect(0, 0, W, H); }
 function glowUnder(k) {
   if (k <= 0) return; ctx.save(); ctx.globalCompositeOperation = "lighter";
-  for (let i = 0; i < 3; i++) { ctx.shadowColor = `rgba(255,255,255,${0.85 * k})`; ctx.shadowBlur = 74 * (1 + i * 0.8); ctx.fillStyle = `rgba(255,255,255,${0.3 * k})`; ctx.fillRect(BR.x + 16, BR.y + 16, BR.w - 32, BR.h - 32); }
+  const [r, g, b] = ringRGB();
+  for (let i = 0; i < 3; i++) { ctx.shadowColor = `rgba(${r},${g},${b},${0.85 * k})`; ctx.shadowBlur = 74 * (1 + i * 0.8); ctx.fillStyle = `rgba(${r},${g},${b},${0.3 * k})`; ctx.fillRect(BR.x + 16, BR.y + 16, BR.w - 32, BR.h - 32); }
   ctx.restore();
 }
 function drawEmbed(now) {
   ctx.clearRect(0, 0, W, H); if (!E) return;
   const t = (now - E.t0) / EMBED_SLOW, ap = seg01(t, 0, 600), gl = seg01(t, 600, 1300), br = seg01(t, 1300, 1700);
   const a = ap * (1 - br);
-  if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.shadowColor = "#fff"; ctx.shadowBlur = 6 + 22 * gl; ctx.drawImage(E.tc, 0, (1 - ap) * 16); ctx.restore(); }
+  if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.drawImage(E.cc, 0, (1 - ap) * 16); ctx.drawImage(E.tc, 0, (1 - ap) * 16); ctx.restore(); }
   let n = 0;
   if (t >= 1300) {
     const drift = eOut(seg01(t, 1300, 2300));
@@ -481,31 +523,154 @@ function drawTrail(now) {
   const t = now - trailT0, fade = Math.min(1, t / 400), P = 2 * (FR.w + FR.h - 8);
   const head = (t / TRAIL.lapMs) * P;
   ctx.save(); ctx.globalCompositeOperation = "lighter";
-  ctx.strokeStyle = `rgba(255,255,255,${0.10 * fade})`; ctx.lineWidth = 10; ctx.shadowColor = "rgba(255,255,255,.6)"; ctx.shadowBlur = 24;
+  const [cr, cg, cb] = ringRGB();
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},${0.14 * fade})`; ctx.lineWidth = 10; ctx.shadowColor = `rgba(${cr},${cg},${cb},.7)`; ctx.shadowBlur = 24;
   ctx.strokeRect(FR.x + 2, FR.y + 2, FR.w - 4, FR.h - 4);                       // soft bezel glow
-  ctx.shadowBlur = 22; ctx.shadowColor = "rgba(255,236,190,.95)";
+  ctx.shadowBlur = 22; ctx.shadowColor = `rgba(${cr},${cg},${cb},.95)`;
   for (let k = 0; k < TRAIL.n; k++) {
     const [px, py] = perimPoint(head - k * TRAIL.step), a = fade * Math.pow(1 - k / TRAIL.n, 1.6);
     const s = TRAIL.size * (1 - 0.5 * k / TRAIL.n);
-    ctx.fillStyle = `rgba(255,246,220,${a})`; ctx.fillRect(px - s / 2, py - s / 2, s, s);
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},${a})`; ctx.fillRect(px - s / 2, py - s / 2, s, s);
   }
   ctx.restore();
 }
 function clearTrail() { if (trailOn) { trailOn = false; ctx.clearRect(0, 0, W, H); } }
 
+/* ---------- brick colour: camera + calibration ----------
+   The camera (OBSBOT Meet 2, exposure and white balance locked) looks at the side of the brick. When the LiDAR sees a
+   brick, the page waits MEASURE_DELAY, averages the camera box for MEASURE_MS while the screen is still neutral, and
+   matches it to the closest calibration sample. Calibrate with /station?colorcal=1. No calibration or no camera: neutral. */
+const MEASURE_DELAY = 250, MEASURE_MS = 700, MAX_DIST = 32, RETRIES = 3;
+const INK_LIGHT = "#FFF7E2", INK_DARK = "#2B2D31";
+let BRICKS = [], CCAL = { roi: [0.25, 0.35, 0.75, 0.55], samples: [], camera: "" };
+let brickId = null, measure = null, cam = null, camTrack = null;
+const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const brickHex = () => (BRICKS.find(b => b.id === brickId) || { hex: "#8A8D92" }).hex;
+function ringRGB() {           // ring / glow colour: the brick colour, a little lighter so it reads on the dark screen
+  if (!brickId) return [255, 246, 220];
+  return hexRGB(brickHex()).map(v => Math.round(v + (255 - v) * 0.3));
+}
+function inkFor(hex) { const [r, g, b] = hexRGB(hex); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? INK_DARK : INK_LIGHT; }
+function rrect(g, X, Y, w, h, r) { g.beginPath(); g.moveTo(X + r, Y); g.arcTo(X + w, Y, X + w, Y + h, r); g.arcTo(X + w, Y + h, X, Y + h, r); g.arcTo(X, Y + h, X, Y, r); g.arcTo(X, Y, X + w, Y, r); g.closePath(); }
+function setBrickColor(id) {
+  brickId = id || null;
+  const hex = brickHex(), [r, g, b] = ringRGB();
+  stage.style.setProperty("--bc", hex); stage.style.setProperty("--bfake", brickId ? hex : "#A65A5A");
+  stage.style.setProperty("--bcg", brickId ? `rgba(${r},${g},${b},.45)` : "rgba(255,255,255,.3)");
+  $("#spot").classList.toggle("col", !!brickId && brick && state !== "invite");
+}
+
+/* sRGB -> CIE Lab, and a distance that cares more about hue than about brightness */
+function lab([R, G, B]) {
+  const f = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const r = f(R), g = f(G), b = f(B);
+  const X = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047, Y = 0.2126 * r + 0.7152 * g + 0.0722 * b, Z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883;
+  const h = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  return [116 * h(Y) - 16, 500 * (h(X) - h(Y)), 200 * (h(Y) - h(Z))];
+}
+const dist = (p, q) => Math.hypot(0.5 * (p[0] - q[0]), p[1] - q[1], p[2] - q[2]);
+function classify(rgb) {
+  const L = lab(rgb), best = {};
+  for (const s of CCAL.samples) { const d = dist(L, lab(s.rgb)); if (!(s.id in best) || d < best[s.id]) best[s.id] = d; }
+  const ranked = Object.entries(best).sort((a, b) => a[1] - b[1]);
+  return { id: ranked.length && ranked[0][1] <= MAX_DIST ? ranked[0][0] : null, ranked };
+}
+
+/* the camera box -> median colour */
+const roiC = document.createElement("canvas"); roiC.width = 48; roiC.height = 16; const roiX = roiC.getContext("2d", { willReadFrequently: true });
+function sampleROI() {
+  const v = $("#cam"); if (!v.videoWidth) return null;
+  const [x0, y0, x1, y1] = CCAL.roi, vw = v.videoWidth, vh = v.videoHeight;
+  roiX.drawImage(v, x0 * vw, y0 * vh, Math.max(1, (x1 - x0) * vw), Math.max(1, (y1 - y0) * vh), 0, 0, 48, 16);
+  const d = roiX.getImageData(0, 0, 48, 16).data, ch = [[], [], []];
+  for (let i = 0; i < d.length; i += 4) { ch[0].push(d[i]); ch[1].push(d[i + 1]); ch[2].push(d[i + 2]); }
+  return ch.map(a => { a.sort((p, q) => p - q); return a[a.length >> 1]; });
+}
+const median3 = list => [0, 1, 2].map(k => { const a = list.map(c => c[k]).sort((p, q) => p - q); return a[a.length >> 1]; });
+function startMeasure(tries = 0) {
+  setBrickColor(null);
+  if (!cam || !CCAL.samples.length) return;
+  measure = { t0: performance.now(), got: [], tries };
+}
+function measureTick(now) {
+  if (!measure) return;
+  if (!brick) { measure = null; return; }
+  const t = now - measure.t0;
+  if (t < MEASURE_DELAY) return;
+  const c = sampleROI(); if (c) measure.got.push(c);
+  if (t < MEASURE_DELAY + MEASURE_MS) return;
+  const res = measure.got.length ? classify(median3(measure.got)) : { id: null, ranked: [] }, tries = measure.tries;
+  measure = null; lastGuess = res;
+  if (res.id) setBrickColor(res.id);
+  else if (tries + 1 < RETRIES) setTimeout(() => { if (brick && !brickId) startMeasure(tries + 1); }, 900);
+}
+let lastGuess = null;
+
+/* camera: the one named in the calibration (default: the first OBSBOT), with exposure and white balance locked if allowed */
+async function startCamera() {
+  try {
+    let devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "videoinput");
+    if (devs.length && !devs[0].label) { (await navigator.mediaDevices.getUserMedia({ video: true })).getTracks().forEach(t => t.stop()); devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "videoinput"); }
+    const want = CCAL.camera || "OBSBOT", dev = devs.find(d => d.label.includes(want)) || devs[0];
+    if (!dev) return;
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: dev.deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+    $("#cam").srcObject = stream; camTrack = stream.getVideoTracks()[0]; cam = dev;
+    try { await camTrack.applyConstraints({ advanced: [{ exposureMode: "manual" }, { whiteBalanceMode: "manual" }, { focusMode: "manual" }] }); } catch (e) {}
+    if (COLORCAL) { const sel = $("#cc-cam"); sel.innerHTML = devs.map(d => `<option value="${d.deviceId}">${d.label || "camera"}</option>`).join(""); sel.value = dev.deviceId; }
+  } catch (e) { cam = null; if (COLORCAL) $("#cc-live").textContent = "No camera: " + e.message; }
+}
+async function loadColorCal() { try { const r = await fetch("/api/colorcal"); if (r.ok) Object.assign(CCAL, await r.json()); } catch (e) {} }
+async function saveColorCal() {
+  try { await fetch("/api/colorcal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(CCAL) }); $("#cc-msg").textContent = "Saved " + new Date().toLocaleTimeString(); }
+  catch (e) { $("#cc-msg").textContent = "Could not save: is server.py running?"; }
+}
+
+/* calibration page */
+function colorCalUI() {
+  const box = $("#cc-vid"), roi = $("#cc-roi");
+  const drawRoi = () => { const [x0, y0, x1, y1] = CCAL.roi; Object.assign(roi.style, { left: x0 * 100 + "%", top: y0 * 100 + "%", width: (x1 - x0) * 100 + "%", height: (y1 - y0) * 100 + "%" }); };
+  let drag = null;
+  const pos = e => { const r = box.getBoundingClientRect(); return [clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1)]; };
+  box.addEventListener("mousedown", e => { drag = pos(e); });
+  addEventListener("mousemove", e => { if (!drag) return; const p = pos(e); CCAL.roi = [Math.min(drag[0], p[0]), Math.min(drag[1], p[1]), Math.max(drag[0], p[0]), Math.max(drag[1], p[1])]; drawRoi(); });
+  addEventListener("mouseup", () => { if (drag) { drag = null; saveColorCal(); } });
+  const rows = () => { $("#cc-rows").innerHTML = BRICKS.map((b, i) => {
+      const n = CCAL.samples.filter(s => s.id === b.id);
+      return `<div class="row"><div class="sw" style="background:${b.hex}"></div><button data-add="${b.id}">${i + 1} · ${b.en}</button><span>${n.length} samples</span>
+        ${n.map(s => `<div class="sw" style="width:28px;height:28px;background:rgb(${s.rgb})"></div>`).join("")}<button data-clr="${b.id}" style="padding:6px 10px">×</button></div>`; }).join("");
+    $("#cc-rows").querySelectorAll("[data-add]").forEach(el => el.onclick = () => addSample(el.dataset.add));
+    $("#cc-rows").querySelectorAll("[data-clr]").forEach(el => el.onclick = () => { CCAL.samples = CCAL.samples.filter(s => s.id !== el.dataset.clr); rows(); saveColorCal(); }); };
+  async function addSample(id) {
+    const got = []; for (let i = 0; i < 15; i++) { const c = sampleROI(); if (c) got.push(c); await new Promise(r => setTimeout(r, 40)); }
+    if (!got.length) { $("#cc-msg").textContent = "No picture from the camera"; return; }
+    CCAL.samples.push({ id, rgb: median3(got) }); rows(); saveColorCal();
+  }
+  $("#cc-clear").onclick = () => { CCAL.samples = []; rows(); saveColorCal(); };
+  $("#cc-cam").onchange = async e => { const o = e.target.selectedOptions[0]; CCAL.camera = o.textContent; saveColorCal(); if (camTrack) camTrack.stop(); await startCamera(); };
+  addEventListener("keydown", e => { const i = "123".indexOf(e.key); if (i >= 0 && BRICKS[i]) addSample(BRICKS[i].id); });
+  setInterval(() => {
+    const c = sampleROI(); if (!c) return; const r = classify(c), b = BRICKS.find(q => q.id === r.id);
+    $("#cc-live").innerHTML = `<div class="row"><div class="sw" style="background:rgb(${c})"></div><span>now: <b>${b ? b.en : "not sure / none"}</b></span></div>` +
+      r.ranked.map(([id, d]) => `${id}: ${d.toFixed(1)}`).join(" · ") + `<br><span style="font-size:18px;opacity:.7">smaller = closer; above ${MAX_DIST} counts as no match</span>`;
+  }, 300);
+  drawRoi(); rows();
+}
+
 /* ---------- main loop ---------- */
 function frame(now) {
-  touchTick(now); brickTick(now);
+  touchTick(now); brickTick(now); measureTick(now);
   if (state === "embed") { trailOn = false; drawEmbed(now); }
   else if (brick && (state === "topic" || state === "message")) drawTrail(now);
   else clearTrail();
-  if (DEBUG) $("#dbg").textContent = `lidar:${server.lidar} ${server.hz || 0}Hz  brick:${brick}${debugBrick !== null ? "(F2)" : ""}  state:${state}  topic:${picked || "-"}  touches:${JSON.stringify(touches)}`;
+  if (DEBUG) $("#dbg").textContent = `lidar:${server.lidar} ${server.hz || 0}Hz  brick:${brick}${debugBrick !== null ? "(F2)" : ""}  state:${state}  topic:${picked || "-"}  colour:${brickId || "-"}${lastGuess ? " [" + lastGuess.ranked.map(([i, d]) => i + " " + d.toFixed(0)).join(", ") + "]" : ""}${cam ? "" : " (no camera)"}  F3 = cycle colour  touches:${JSON.stringify(touches)}`;
   requestAnimationFrame(frame);
 }
 
 async function init() {
   try { CFG = Object.assign(CFG, await (await fetch("/api/config")).json()); } catch (e) {}
   TOPICS = await (await fetch("/topics.json")).json();
+  try { BRICKS = await (await fetch("/bricks.json")).json(); } catch (e) {}
+  await loadColorCal(); startCamera().then(() => { if (COLORCAL) colorCalUI(); });
   await Promise.all([300, 400, 600, 700].map(w => document.fonts.load(`${w} 40px Plex`, "กขabc")));
   layout(); buildButtons(); setBg(false); go("invite");
   requestAnimationFrame(refit);

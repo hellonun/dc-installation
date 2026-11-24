@@ -1,0 +1,5 @@
+[
+  { "id": "red",    "th": "อิฐโทนแดง", "en": "Reddish brick",      "hex": "#A65A5A", "gen": "Gen Alpha · Gen Z" },
+  { "id": "orange", "th": "อิฐโทนส้ม", "en": "Orange-ish brick",   "hex": "#CDB497", "gen": "Gen Y (Millennials)" },
+  { "id": "green",  "th": "อิฐโทนเขียว", "en": "Greenish brick",   "hex": "#7A8E83", "gen": "Gen X · Boomers" }
+]

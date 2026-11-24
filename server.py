@@ -37,6 +37,7 @@ WEB = os.path.join(HERE, "web")
 DATA = os.path.join(HERE, "data")
 CSV_PATH = os.path.join(DATA, "messages.csv")
 BACKUPS = os.path.join(DATA, "backups")
+COLOR_CAL = os.path.join(HERE, "color_cal.json")     # brick colour calibration, written by /station?colorcal=1
 CSV_FIELDS = ["id", "time", "topic_id", "topic_th", "topic_en", "message", "brick_color"]
 MAX_LEN = 80
 
@@ -260,6 +261,11 @@ class Handler(BaseHTTPRequestHandler):
             cfg = L.load_cfg()
             return self._send(200, {"screen_w_mm": cfg["screen_w_mm"], "screen_h_mm": cfg["screen_h_mm"],
                                     "cal_points": L.CAL_POINTS, "max_len": MAX_LEN})
+        if path == "/api/colorcal":
+            if not os.path.exists(COLOR_CAL):
+                return self._send(200, {})
+            with open(COLOR_CAL, encoding="utf-8") as f:
+                return self._send(200, f.read())
         if path == "/api/state":
             with STATE_LOCK:
                 return self._send(200, dict(STATE))
@@ -273,6 +279,16 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, body, MIME.get(ext, "application/octet-stream"), cache=ext == ".woff2")
 
     def do_POST(self):
+        if urlparse(self.path).path == "/api/colorcal":
+            try:
+                n = int(self.headers.get("Content-Length", "0"))
+                data = json.loads(self.rfile.read(min(n, 200000)).decode("utf-8"))
+                with open(COLOR_CAL, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=1)
+                log(f"[colour] calibration saved: {len(data.get('samples', []))} samples")
+                return self._send(200, {"ok": True})
+            except Exception as e:
+                return self._send(400, {"error": str(e)})
         if urlparse(self.path).path == "/api/refocus":
             try:
                 n = int(self.headers.get("Content-Length", "0"))
