@@ -8,7 +8,7 @@ RPLIDAR C1 ──USB──> server.py ──> Chrome full screen: /station   (Th
                       └──network──> Chrome full screen: /wall     (3 × Uperfect, wall computer)
 ```
 
-Only one extra package is needed: `pip install pyserial`. Everything else, fonts included, is in this folder, so it works offline.
+Only one extra package is needed: `pip install pyserial`. Optional: `pip install pyautogui`, so the station window takes the keyboard back if someone clicks on another screen (see *Keyboard focus*). Everything else, fonts included, is in this folder, so it works offline.
 
 ## Run it (Mac for now, Windows later: same commands)
 ```
@@ -24,8 +24,8 @@ Without the sensor: `python server.py --nolidar` and open **http://localhost:808
 
 ## The flow
 1. **Invite.** Put a brick on the spot. The screen goes darker.
-2. **Choose a topic.** Until someone taps, the heading cycles through the 4 topics every 3.2 s ("อยากเสนออะไรในเรื่อง … / What would you propose for …?"), each with a preview of the exact question asked next, and the matching button's outline lights up yellow. Tap a topic, then start typing on the keyboard.
-3. **Write your message.** Up to 80 characters, then Enter. Esc goes back to the topics.
+2. **Choose a topic.** One question: "คุณอยากเห็นการเปลี่ยนแปลงอะไรในเรื่อง ___ / What change would you like to see in ___?". Until someone taps, the underlined topic cycles through the 4 topics every 3.2 s and the matching button's outline lights up yellow. Tap a topic, then start typing on the keyboard.
+3. **Write your message.** The same question stays at the top with the chosen topic. The answer always starts with a fixed "อยากเห็น…"; they type the rest (up to 80 characters), then Enter. The prefix is saved with the message and shown on the wall. Esc goes back to the topics.
 4. **Embedding.** Direction B, drawn in, with no dashed outline.
 5. **Thank you.** It asks them to lift the brick off. Once the brick is gone, it's back to step 1.
 
@@ -48,6 +48,11 @@ On a Mac, find the address in System Settings › Network. With your router, set
 4. Stop the `--nolidar` server and start `python server.py` normally.
 
 `python lidar.py --raw` shows what the sensor sees.
+
+## Keyboard focus
+Typing only reaches the station if its Chrome window has the keyboard. If someone clicks on another screen, the station page tells `server.py`, which clicks once on the middle of the station window to take the keyboard back (needs `pip install pyautogui`; on a Mac, allow Terminal under System Settings › Privacy & Security › Accessibility). If the click lands in the wrong place, set `"refocus_xy": [x, y]` in `lidar_config.json`. Turn it off with `python server.py --norefocus`. With `?debug=1`, a yellow note top right shows when the window has lost the keyboard.
+
+Best fix for the show: run only the station window on the master computer (the wall screens on the other computer), in Chrome kiosk mode, with no mouse plugged in.
 
 ## Settings
 - **Topics and questions:** `web/topics.json`

@@ -192,6 +192,36 @@ def lidar_loop():
                     pass
 
 
+# --------------------------------------------------------------------------- keyboard focus
+
+REFOCUS = {"on": True, "last": 0.0, "warned": False}
+
+
+def refocus(d):
+    """The station page lost the keyboard to another window: click once on the middle of the station window.
+    Needs `pip install pyautogui` (Mac: allow Terminal under Privacy & Security > Accessibility).
+    lidar_config.json "refocus_xy": [x, y] overrides the spot, in the screen pixels pyautogui uses."""
+    if not REFOCUS["on"] or time.time() - REFOCUS["last"] < 1.2:
+        return
+    try:
+        import pyautogui
+    except ImportError:
+        if not REFOCUS["warned"]:
+            log("[focus] the station window lost the keyboard. pip install pyautogui to fix it automatically")
+            REFOCUS["warned"] = True
+        return
+    xy = L.load_cfg().get("refocus_xy")
+    if xy:
+        x, y = xy
+    else:
+        k = float(d.get("dpr", 1)) if os.name == "nt" else 1.0      # Windows: pyautogui works in physical pixels
+        x, y = float(d["x"]) * k, float(d["y"]) * k
+    REFOCUS["last"] = time.time()
+    pyautogui.FAILSAFE = False
+    pyautogui.click(int(x), int(y))
+    log(f"[focus] clicked the station window at {int(x)}, {int(y)} to take the keyboard back")
+
+
 # --------------------------------------------------------------------------- HTTP
 
 MIME = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -243,13 +273,20 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, body, MIME.get(ext, "application/octet-stream"), cache=ext == ".woff2")
 
     def do_POST(self):
+        if urlparse(self.path).path == "/api/refocus":
+            try:
+                n = int(self.headers.get("Content-Length", "0"))
+                refocus(json.loads(self.rfile.read(min(n, 1000)).decode("utf-8")))
+            except Exception as e:
+                log(f"[focus] {e}")
+            return self._send(200, {"ok": True})
         if urlparse(self.path).path != "/api/message":
             return self._send(404, {"error": "not found"})
         try:
             n = int(self.headers.get("Content-Length", "0"))
             data = json.loads(self.rfile.read(min(n, 10000)).decode("utf-8"))
             topic = data.get("topic")
-            text = " ".join(str(data.get("message", "")).split())[:MAX_LEN]
+            text = " ".join(str(data.get("message", "")).split())[:MAX_LEN + 20]   # + the "อยากเห็น" prefix
             if topic not in TOPICS or not text:
                 return self._send(400, {"error": "topic and message required"})
             row = STORE.add(topic, text, str(data.get("color", ""))[:16])
@@ -293,8 +330,10 @@ def main():
     ap = argparse.ArgumentParser(description="Dream Con brick station server")
     ap.add_argument("--port", type=int, default=8080)
     ap.add_argument("--nolidar", action="store_true", help="run without the sensor (debug)")
+    ap.add_argument("--norefocus", action="store_true", help="don't click the station window to take the keyboard back")
     args = ap.parse_args()
 
+    REFOCUS["on"] = not args.norefocus
     STORE = Store()
     threading.Thread(target=STORE.backup_loop, daemon=True).start()
     if args.nolidar:

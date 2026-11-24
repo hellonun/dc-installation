@@ -107,7 +107,7 @@ function draw(now) {
   }
   x.save(); x.beginPath(); x.rect(0, HEAD, W, H - HEAD); x.clip();
   belt.forEach((b, i) => {
-    const off = (i + (b.m ? hash(b.m.id) : 0)) % 2 ? 18 : -18;      // a little running-bond offset
+    const off = 0;                                                   // every brick centred
     if (b.fresh) {                                                   // new message: soft glow for 20 s
       const k = Math.max(0, 1 - (now - b.born) / 20000);
       if (k > 0) { x.save(); x.shadowColor = `rgba(255,214,120,${0.9 * k})`; x.shadowBlur = 50; x.drawImage(b.img, BX + off, b.y); x.restore(); return; }
@@ -118,8 +118,8 @@ function draw(now) {
   // header
   x.fillStyle = BG; x.fillRect(0, 0, W, HEAD);
   x.textAlign = "center"; x.textBaseline = "middle";
-  x.font = "700 56px Plex"; x.fillStyle = SUN; x.fillText("รัฐธรรมนูญในฝันของคุณ", W / 2, 92, W - 80);
-  x.font = "600 34px Plex"; x.fillStyle = SKY; x.fillText("YOUR DREAM CONSTITUTION", W / 2, 158, W - 80);
+  x.font = "700 56px Plex"; x.fillStyle = SUN; x.fillText("รัฐธรรมนูญในฝัน", W / 2, 92, W - 80);
+  x.font = "600 34px Plex"; x.fillStyle = SKY; x.fillText("DREAM CONSTITUTION", W / 2, 158, W - 80);
   x.strokeStyle = "rgba(255,255,255,.3)"; x.lineWidth = 3; x.beginPath(); x.moveTo(60, HEAD - 12); x.lineTo(W - 60, HEAD - 12); x.stroke();
   requestAnimationFrame(draw);
 }
